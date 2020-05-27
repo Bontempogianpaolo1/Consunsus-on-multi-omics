@@ -1,4 +1,4 @@
-from sklearn.neural_network import MLPClassifier
+from sklearn.ensemble import RandomForestClassifier
 import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
@@ -23,7 +23,7 @@ filenames=["meth","mrna","mrna normalized"]
 for file,filename in zip(files,filenames):
     X= pd.read_csv(file).drop(columns=["Composite Element REF","Unnamed: 0"])
     X_train, X_test, y_train, y_test = train_test_split(X, y,  random_state=seed)
-    model = MLPClassifier()
+    model = RandomForestClassifier()
     model.fit(X_train,y_train)
     y_pred=model.predict(X_test)
 
