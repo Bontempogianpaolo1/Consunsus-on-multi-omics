@@ -6,8 +6,6 @@ from sklearn.metrics import confusion_matrix, accuracy_score
 from sklearn.metrics import classification_report
 import matplotlib as plt
 from utils.Plot import plot_confusion_matrix
-from utils.Plot import plot_confusion_matrix
-from utils.Plot import plot_confusion_matrix
 seed=1200
 annotation_path="../Data/data/preprocessed_annotation_global.csv"
 y = pd.read_csv(annotation_path)["label"]
@@ -39,11 +37,12 @@ for file,filename in zip(files,filenames):
     # PlotDir non-normalized confusion matrix
     plt.figure.Figure(figsize=(10, 10))
     plot_confusion_matrix(cnf_matrix,
-                          title=filename,classes=names)
+                          title="random forest "+filename,classes=names)
     # PlotDir normalized confusion matrix
     plt.figure.Figure(figsize=(10, 10))
     plot_confusion_matrix(cnf_matrix,  normalize=True,
                           title="normalizeD "+filename,classes=names)
+    print("random forest "+filename)
     print(classification_report(y_test, y_pred, ))
 
 

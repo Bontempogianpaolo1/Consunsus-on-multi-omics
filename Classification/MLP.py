@@ -39,11 +39,12 @@ for file,filename in zip(files,filenames):
     # PlotDir non-normalized confusion matrix
     plt.figure.Figure(figsize=(10, 10))
     plot_confusion_matrix(cnf_matrix,
-                          title=filename,classes=names)
+                          title="mlp "+filename,classes=names)
     # PlotDir normalized confusion matrix
     plt.figure.Figure(figsize=(10, 10))
     plot_confusion_matrix(cnf_matrix,  normalize=True,
                           title="normalizeD "+filename,classes=names)
+    print("mlp "+filename)
     print(classification_report(y_test, y_pred, ))
 
 
