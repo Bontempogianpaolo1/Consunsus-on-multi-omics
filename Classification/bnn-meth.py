@@ -114,8 +114,8 @@ y=y.astype('category').cat.codes
 meth_path="../Data/data/preprocessed_Matrix_meth.csv"
 mRNA_path="../Data/data/preprocessed_Matrix_miRNA_deseq_correct.csv"
 mRNA_normalized_path="../Data/data/preprocessed_Matrix_mRNA_deseq_normalized_prot_coding_correct.csv"
-files=[meth_path,mRNA_path,mRNA_normalized_path]
-filenames=["meth","mrna","mrna normalized"]
+files=[meth_path]
+filenames=["meth"]
 for file,filename in zip(files,filenames):
 
     X= pd.read_csv(file).drop(columns=["Composite Element REF","Unnamed: 0"])
@@ -123,13 +123,13 @@ for file,filename in zip(files,filenames):
     dataset= utils.custom_dataset.CustomDataset(X_train.to_numpy(),y_train.to_numpy(),transform= utils.custom_dataset.ToTensor())
     loader = torch.utils.data.DataLoader(dataset, batch_size=16, shuffle=True)
     svi = SVI(model, guide, optim, loss=Trace_ELBO())
-    num_iterations = 5
+    num_iterations = 30
     loss = 0
     for j in range(num_iterations):
         loss = 0
         for batch_id, data in enumerate(loader):
             # calculate the loss and take a gradient step
-            loss += svi.step(data["X"].view(-1, 10000), data["y"])
+            loss += svi.step(data["X"].view(-1, data["X"].shape[1]), data["y"])
         normalizer_train = len(loader.dataset)
         total_epoch_loss_train = loss / normalizer_train
 
