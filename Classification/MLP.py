@@ -8,10 +8,11 @@ import matplotlib as plt
 from utils.Plot import plot_confusion_matrix
 from utils.Plot import plot_confusion_matrix
 from utils.Plot import plot_confusion_matrix
+from sklearn.model_selection import GridSearchCV
 seed=1200
 annotation_path="../Data/data/preprocessed_annotation_global.csv"
 y = pd.read_csv(annotation_path)["label"]
-names=y.unique()
+names=y.astype('category').cat.categories
 y=y.astype('category').cat.codes
 
 
@@ -21,11 +22,14 @@ mRNA_normalized_path="../Data/data/preprocessed_Matrix_mRNA_deseq_normalized_pro
 files=[meth_path,mRNA_path,mRNA_normalized_path]
 filenames=["meth","mrna","mrna normalized"]
 predictions=[]
+parameters = { 'hidden_layer_sizes':np.arange(start=100,stop= 150,step=10), 'random_state':[seed],'max_iter': [200,400,600 ]}
+
 true_labels=[]
 for file,filename in zip(files,filenames):
     X= pd.read_csv(file).drop(columns=["Composite Element REF","Unnamed: 0"])
-    X_train, X_test, y_train, y_test = train_test_split(X, y,  random_state=seed)
+    X_train, X_test, y_train, y_test = train_test_split(X, y,  random_state=seed,stratify=y)
     model = MLPClassifier()
+    model= GridSearchCV(model,parameters)
     model.fit(X_train,y_train)
     y_pred=model.predict(X_test)
     predictions.append(y_pred)

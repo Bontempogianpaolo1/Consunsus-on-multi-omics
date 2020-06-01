@@ -2,7 +2,7 @@
 import pandas as pd
 path_annotation="./data/annotation_global.csv"
 path_meth="./data/Matrix_meth.csv"
-
+max_features=5000
 
 def union(row):
     return str(row["is_tumor"])+"-"+row["project_id"]
@@ -29,7 +29,7 @@ data = pd.DataFrame(data.values[1:], columns=headers)
 
 index=data["Composite Element REF"]
 data_onlyvalues=data.drop(columns=["Composite Element REF"])
-data=data[data_onlyvalues.std().sort_values(ascending=False).head(10000).index]
+data=data[data_onlyvalues.std().sort_values(ascending=False).head(max_features).index]
 data["Composite Element REF"]=index
 
 data= data[~data["Composite Element REF"].isin(cases_removed["case_id"]) ]
@@ -44,7 +44,7 @@ data = pd.DataFrame(data.values[1:], columns=headers)
 
 index=data["Composite Element REF"]
 data_onlyvalues=data.drop(columns=["Composite Element REF"])
-data=data[data_onlyvalues.std().sort_values(ascending=False).head(10000).index]
+data=data[data_onlyvalues.std().sort_values(ascending=False).head(max_features).index]
 data["Composite Element REF"]=index
 
 data= data[~data["Composite Element REF"].isin(cases_removed["case_id"]) ]
@@ -62,7 +62,7 @@ data = pd.DataFrame(data.values[1:], columns=headers)
 
 index=data["Composite Element REF"]
 data_onlyvalues=data.drop(columns=["Composite Element REF"])
-data=data[data_onlyvalues.std().sort_values(ascending=False).head(10000).index]
+data=data[data_onlyvalues.std().sort_values(ascending=False).head(max_features).index]
 data["Composite Element REF"]=index
 
 data= data[~data["Composite Element REF"].isin(cases_removed["case_id"]) ]

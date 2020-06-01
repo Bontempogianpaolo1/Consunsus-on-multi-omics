@@ -8,10 +8,11 @@ import matplotlib as plt
 from utils.Plot import plot_confusion_matrix
 from utils.Plot import plot_confusion_matrix
 from utils.Plot import plot_confusion_matrix
+from sklearn.model_selection import GridSearchCV
 seed=1200
 annotation_path="../Data/data/preprocessed_annotation_global.csv"
 y = pd.read_csv(annotation_path)["label"]
-names=y.unique()
+names=y.astype('category').cat.categories
 y=y.astype('category').cat.codes
 
 
@@ -22,15 +23,20 @@ files=[meth_path,mRNA_path,mRNA_normalized_path]
 filenames=["meth","mrna","mrna normalized"]
 predictions=[]
 true_labels=[]
+parameters = {'kernel':('linear', 'poly', 'rbf', 'sigmoid'), 'C':[1, 10,20],'random_state':[seed]}
+
 for file,filename in zip(files,filenames):
     X= pd.read_csv(file).drop(columns=["Composite Element REF","Unnamed: 0"])
-    X_train, X_test, y_train, y_test = train_test_split(X, y,  random_state=seed)
-    model = svm.SVC( random_state=seed, kernel='linear')
+    X_train, X_test, y_train, y_test = train_test_split(X, y,  random_state=seed,stratify=y)
+    model = svm.SVC()
+    model= GridSearchCV(model,parameters)
     model.fit(X_train,y_train)
     y_pred=model.predict(X_test)
     predictions.append(y_pred)
     true_labels.append(y_test)
     print(filename)
+    print("best parameters")
+    print(model.best_params_)
     print("Confusion matrix")
     totalscore = accuracy_score(y_test, y_pred)
     print("final score : %f" % totalscore)

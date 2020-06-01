@@ -6,10 +6,11 @@ from sklearn.metrics import confusion_matrix, accuracy_score
 from sklearn.metrics import classification_report
 import matplotlib as plt
 from utils.Plot import plot_confusion_matrix
+from sklearn.model_selection import GridSearchCV
 seed=1200
 annotation_path="../Data/data/preprocessed_annotation_global.csv"
 y = pd.read_csv(annotation_path)["label"]
-names=y.unique()
+names=y.astype('category').cat.categories
 y=y.astype('category').cat.codes
 
 
@@ -18,12 +19,15 @@ mRNA_path="../Data/data/preprocessed_Matrix_miRNA_deseq_correct.csv"
 mRNA_normalized_path="../Data/data/preprocessed_Matrix_mRNA_deseq_normalized_prot_coding_correct.csv"
 files=[meth_path,mRNA_path,mRNA_normalized_path]
 filenames=["meth","mrna","mrna normalized"]
+parameters = { 'criterion':["gini", "entropy"], 'max_depth':[5,10,15],'min_samples_split': [2,4,10]}
+
 predictions=[]
 true_labels=[]
 for file,filename in zip(files,filenames):
     X= pd.read_csv(file).drop(columns=["Composite Element REF","Unnamed: 0"])
-    X_train, X_test, y_train, y_test = train_test_split(X, y,  random_state=seed)
+    X_train, X_test, y_train, y_test = train_test_split(X, y,  random_state=seed,stratify=y)
     model = RandomForestClassifier()
+    model = GridSearchCV(model, parameters)
     model.fit(X_train,y_train)
     y_pred=model.predict(X_test)
     predictions.append(y_pred)
