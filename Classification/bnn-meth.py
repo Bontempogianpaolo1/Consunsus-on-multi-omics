@@ -140,7 +140,6 @@ for file, filename in zip(files, filenames):
             total_epoch_loss_train = loss / normalizer_train
 
             print("Epoch ", j, " Loss ", total_epoch_loss_train)
-            print("Epoch ", j, " Loss ", total_epoch_loss_train, file=f)
 
         print(filename)
 
@@ -171,7 +170,6 @@ for file, filename in zip(files, filenames):
             total += labels.size(0)
             correct += (torch.from_numpy(predicted) == labels).sum().item()
         print("accuracy: %d %%" % (100 * correct / total))
-        print("accuracy: %d %%" % (100 * correct / total), file=f)
         import pandas as pd
 
         pd.DataFrame(probabilities).to_csv("../Data/outputs/pred-bnn-"+filename+".csv")

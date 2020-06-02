@@ -1,0 +1,13 @@
+ random-forest mrna {'criterion': 'entropy', 'max_depth': 10, 'min_samples_split': 4}
+              precision    recall  f1-score   support
+
+           0       1.00      0.67      0.80         6
+           1       1.00      0.83      0.91         6
+           2       0.93      0.81      0.87        16
+           3       0.95      0.99      0.97       128
+           4       0.94      0.94      0.94        72
+
+    accuracy                           0.95       228
+   macro avg       0.97      0.85      0.90       228
+weighted avg       0.95      0.95      0.95       228
+

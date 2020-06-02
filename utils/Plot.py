@@ -57,6 +57,7 @@ def plot_confusion_matrix(cm, classes,
     print(cm)
 
     plt.imshow(cm, interpolation='nearest', cmap=cmap)
+
     plt.title(title)
     plt.colorbar()
     tick_marks = np.arange(len(classes))
@@ -73,6 +74,7 @@ def plot_confusion_matrix(cm, classes,
     plt.ylabel('True label')
     plt.xlabel('Predicted label')
     plt.tight_layout()
+    plt.savefig("../Data/outputs/"+title + ".png")
     plt.pause(0.2)
 
 
