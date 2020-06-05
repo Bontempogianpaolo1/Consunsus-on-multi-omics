@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 from sklearn.metrics import roc_curve, auc
 from sklearn.model_selection import learning_curve
 import itertools
+from matplotlib.ticker import PercentFormatter
 
 
 def plot_roc(n_classes, y_score, y_test2, names, title):
@@ -39,7 +40,61 @@ def plot_roc(n_classes, y_score, y_test2, names, title):
     plt.legend(loc="lower right")
     plt.pause(0.2)
 
+def plot_pareto(max_variance,variance,n_components,title):
+    fig, ax = plt.subplots()
+    max_variance=variance.max()
+    #variance=variance/max_variance*100
+    ax.bar(n_components, variance, color="C0")
+    ax2 = ax.twinx()
+    ax2.plot(n_components, variance.cumsum()/variance.sum(), color="C1", marker="D")
+    ax2.yaxis.set_major_formatter(PercentFormatter())
 
+    ax.tick_params(axis="y", colors="C0")
+    ax.set_ylabel('variance(variance / best) ')
+    ax.set_xlabel('number of principal components')
+    ax2.tick_params(axis="y", colors="C1")
+    ax2.set_ylabel('variance cumulative')
+    plt.title(title)
+    plt.savefig("../Data/outputs/paretos/" + title + ".png")
+    plt.show()
+
+
+def pareto_plot(df, x=None, y=None, title=None, show_pct_y=False, pct_format='{0:.0%}'):
+    xlabel = x
+    ylabel = y
+    tmp = df.sort_values(y, ascending=False)
+    x = tmp[x].values
+    y = tmp[y].values
+    weights = y / y.sum()
+    cumsum = y#weights.cumsum()
+
+    fig, ax1 = plt.subplots()
+    ax1.bar(x, y)
+    ax1.set_xlabel(xlabel)
+    ax1.set_ylabel(ylabel)
+
+    ax2 = ax1.twinx()
+    ax2.plot(x, cumsum, '-ro', alpha=0.5)
+    ax2.set_ylabel('', color='r')
+    ax2.tick_params('y', colors='r')
+
+    vals = ax2.get_yticks()
+    ax2.set_yticklabels(['{:,.2%}'.format(x) for x in vals])
+
+    # hide y-labels on right side
+    if not show_pct_y:
+        ax2.set_yticks([])
+
+    formatted_weights = [pct_format.format(x) for x in cumsum]
+    for i, txt in enumerate(formatted_weights):
+        ax2.annotate(txt, (x[i], cumsum[i]), fontweight='heavy')
+
+    if title:
+        plt.title(title)
+
+    plt.tight_layout()
+    plt.savefig("../Data/outputs/paretos/" + title + ".png")
+    plt.show()
 def plot_confusion_matrix(cm, classes,
                           normalize=False,
                           title='Confusion matrix',

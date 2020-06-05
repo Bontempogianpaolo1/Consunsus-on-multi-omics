@@ -1,13 +1,13 @@
- random-forest meth {'criterion': 'entropy', 'max_depth': 5, 'min_samples_split': 4}
+ random-forest meth {'criterion': 'gini', 'max_depth': 15, 'min_samples_split': 4}
               precision    recall  f1-score   support
 
-           0       0.71      0.83      0.77         6
-           1       0.80      0.67      0.73         6
-           2       0.80      0.75      0.77        16
-           3       0.95      0.95      0.95       128
-           4       0.90      0.90      0.90        72
+           0       0.80      0.67      0.73         6
+           1       0.75      0.50      0.60         6
+           2       0.71      0.94      0.81        16
+           3       0.95      0.98      0.96       128
+           4       0.97      0.89      0.93        72
 
-    accuracy                           0.91       228
-   macro avg       0.83      0.82      0.82       228
-weighted avg       0.91      0.91      0.91       228
+    accuracy                           0.93       228
+   macro avg       0.84      0.79      0.81       228
+weighted avg       0.93      0.93      0.92       228
 

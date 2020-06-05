@@ -7,6 +7,7 @@ from sklearn.metrics import classification_report
 import matplotlib as plt
 from utils.Plot import plot_confusion_matrix
 from sklearn.model_selection import GridSearchCV
+from sklearn.decomposition import PCA
 seed=1200
 annotation_path="../Data/data/preprocessed_annotation_global.csv"
 y = pd.read_csv(annotation_path)["label"]
@@ -26,12 +27,15 @@ true_labels=[]
 for file,filename in zip(files,filenames):
     outputname=modelname+filename
     with open('../Data/outputs/' + outputname + '.txt', 'w') as f:
-        X= pd.read_csv(file).drop(columns=["Composite Element REF","Unnamed: 0"])
+        X= pd.read_csv(file,index_col=False,header=None)
         X_train, X_test, y_train, y_test = train_test_split(X, y,  random_state=seed,stratify=y)
         model = RandomForestClassifier()
         model= GridSearchCV(model,parameters)
-        model.fit(X_train,y_train)
-        y_pred=model.predict(X_test)
+        pca = PCA(n_components=7)
+        X_train_transformed = pca.fit_transform(X_train)
+        X_test_transformed = pca.transform(X_test)
+        model.fit(X_train_transformed, y_train)
+        y_pred = model.predict(X_test_transformed)
         predictions.append(y_pred)
         true_labels.append(y_test)
         print(filename)

@@ -9,6 +9,7 @@ from pyro.optim import Adam
 import pandas as pd
 import numpy as np
 import utils.custom_dataset
+from sklearn.decomposition import PCA
 import matplotlib.pyplot as plt
 from matplotlib import colors
 import os
@@ -18,8 +19,8 @@ from sklearn.metrics import confusion_matrix, accuracy_score
 from sklearn.metrics import classification_report
 import matplotlib as plt
 from utils.Plot import plot_confusion_matrix
-num_iterations = 30
-num_features=1563
+num_iterations = 50
+num_features=7
 class NN(nn.Module):
 
     def __init__(self, input_size, hidden_size, output_size):
@@ -119,13 +120,16 @@ meth_path = "../Data/data/preprocessed_Matrix_meth.csv"
 mRNA_path = "../Data/data/preprocessed_Matrix_miRNA_deseq_correct.csv"
 mRNA_normalized_path = "../Data/data/preprocessed_Matrix_mRNA_deseq_normalized_prot_coding_correct.csv"
 files = [mRNA_path]
-filenames = [ "mrna"]
+filenames = [ "miRNA"]
 
 for file, filename in zip(files, filenames):
     with open('../Data/outputs/'+filename+'-bnn-output.txt', 'w') as f:
-        X = pd.read_csv(file).drop(columns=["Composite Element REF", "Unnamed: 0"])
+        X = pd.read_csv(file,index_col=False,header=None)
         X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=seed)
-        dataset = utils.custom_dataset.CustomDataset(X_train.to_numpy(), y_train.to_numpy(),
+        pca = PCA(n_components=7)
+        X_train_transformed = pca.fit_transform(X_train)
+        X_test_transformed = pca.transform(X_test)
+        dataset = utils.custom_dataset.CustomDataset(X_train_transformed, y_train.to_numpy(),
                                                      transform=utils.custom_dataset.ToTensor())
         loader = torch.utils.data.DataLoader(dataset, batch_size=16, shuffle=True)
         svi = SVI(model, guide, optim, loss=Trace_ELBO())
@@ -140,7 +144,7 @@ for file, filename in zip(files, filenames):
             total_epoch_loss_train = loss / normalizer_train
 
             print("Epoch ", j, " Loss ", total_epoch_loss_train)
-            print("Epoch ", j, " Loss ", total_epoch_loss_train,file=f)
+
         print(filename)
 
         num_samples = 10
@@ -156,7 +160,7 @@ for file, filename in zip(files, filenames):
         print('Prediction when network is forced to predict')
         correct = 0
         total = 0
-        dataset = utils.custom_dataset.CustomDataset(X_test.to_numpy(), y_test.to_numpy(),
+        dataset = utils.custom_dataset.CustomDataset(X_test_transformed, y_test.to_numpy(),
                                                      transform=utils.custom_dataset.ToTensor())
         loader = torch.utils.data.DataLoader(dataset, batch_size=32)
         probabilities = np.ndarray(shape=(0,5))
@@ -170,7 +174,6 @@ for file, filename in zip(files, filenames):
             total += labels.size(0)
             correct += (torch.from_numpy(predicted) == labels).sum().item()
         print("accuracy: %d %%" % (100 * correct / total))
-        print("accuracy: %d %%" % (100 * correct / total),file=f)
         import pandas as pd
 
         pd.DataFrame(probabilities).to_csv("../Data/outputs/pred-bnn-"+filename+".csv")
