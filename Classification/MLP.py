@@ -69,7 +69,7 @@ meth_path = "../Data/data/preprocessed_Matrix_meth.csv"
 mRNA_path = "../Data/data/preprocessed_Matrix_miRNA_deseq_correct.csv"
 mRNA_normalized_path = "../Data/data/preprocessed_Matrix_mRNA_deseq_normalized_prot_coding_correct.csv"
 files = [meth_path,mRNA_path,mRNA_normalized_path]
-filenames = [ "meth","mrna","micro-miRNA"]
+filenames = ["meth","mrna","micro mrna"]
 
 for file, filename in zip(files, filenames):
     with open('../Data/outputs/'+filename+'-bnn-output.txt', 'w') as f:

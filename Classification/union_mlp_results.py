@@ -4,14 +4,14 @@ from utils.Plot import plot_confusion_matrix
 from sklearn.metrics import classification_report
 from sklearn.metrics import confusion_matrix, accuracy_score
 import matplotlib as plt
-path1="../Data/outputs/pred-bnn-mrna.csv"
-path2="../Data/outputs/pred-bnn-meth.csv"
-path3="../Data/outputs/pred-bnn-micro mrna.csv"
+path1="../Data/outputs/pred-mlp-mrna.csv"
+path2="../Data/outputs/pred-mlp-meth.csv"
+path3="../Data/outputs/pred-mlp-micro mrna.csv"
 annotation_path="../Data/data/preprocessed_annotation_global.csv"
 data1 = pd.read_csv(path1).drop(columns=["Unnamed: 0"])
 data2 = pd.read_csv(path2).drop(columns=["Unnamed: 0"])
 data3 = pd.read_csv(path3).drop(columns=["Unnamed: 0"])
-model="bnn"
+model="mlp"
 filename= ["mrna","meth","micro mrna"]
 with open('../Data/outputs/bnn mrna.txt', 'w') as f:
     y_pred=np.argmax(data1.values,axis=1)
@@ -57,5 +57,5 @@ with open('../Data/outputs/bnn comparison.txt', 'w') as f:
     np.set_printoptions(precision=2)
     # PlotDir non-normalized confusion matrix
     plt.figure.Figure(figsize=(10, 10))
-    plot_confusion_matrix(cnf_matrix,title="comparisonbnn",classes=names)
+    plot_confusion_matrix(cnf_matrix,title="comparisonmlp",classes=names)
     print(classification_report(target.drop(0), y_pred, ),file=f)

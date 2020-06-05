@@ -13,13 +13,13 @@ annotation_path="../Data/data/preprocessed_annotation_global.csv"
 y = pd.read_csv(annotation_path)["label"]
 names=y.astype('category').cat.categories
 y=y.astype('category').cat.codes
-modelname=" random-forest "
+modelname="random-forest"
 
 meth_path="../Data/data/preprocessed_Matrix_meth.csv"
 mRNA_path="../Data/data/preprocessed_Matrix_miRNA_deseq_correct.csv"
 mRNA_normalized_path="../Data/data/preprocessed_Matrix_mRNA_deseq_normalized_prot_coding_correct.csv"
 files=[meth_path,mRNA_path,mRNA_normalized_path]
-filenames=["meth","mrna","mrna normalized"]
+filenames=["meth","mrna","micro mrna"]
 parameters = { 'criterion':["gini", "entropy"], 'max_depth':[5,10,15],'min_samples_split': [2,4,10]}
 
 predictions=[]
@@ -52,7 +52,7 @@ for file,filename in zip(files,filenames):
         # PlotDir non-normalized confusion matrix
         plt.figure.Figure(figsize=(10, 10))
         plot_confusion_matrix(cnf_matrix,
-                              title=modelname+filename,classes=names)
+                              title=modelname+"-"+filename,classes=names)
 
         print(modelname+filename+" "+str(model.best_params_),file=f)
         print(classification_report(y_test, y_pred, ),file=f)
@@ -79,7 +79,7 @@ np.set_printoptions(precision=2)
 plt.figure.Figure(figsize=(10, 10))
 plot_confusion_matrix(cnf_matrix,
                       title="comparison"+modelname,classes=names)
-plt.pyplot.savefig(modelname+".png")
+#plt.pyplot.savefig(modelname+".png")
 
 with open('../Data/outputs/'+modelname+'.txt', 'w') as f:
     print(classification_report(true_labels[0], y_pred, ),file=f)

@@ -17,12 +17,12 @@ y = pd.read_csv(annotation_path)["label"]
 names=y.astype('category').cat.categories
 y=y.astype('category').cat.codes
 
-modelname=" svm "
+modelname="svm"
 meth_path="../Data/data/preprocessed_Matrix_meth.csv"
 mRNA_path="../Data/data/preprocessed_Matrix_miRNA_deseq_correct.csv"
 mRNA_normalized_path="../Data/data/preprocessed_Matrix_mRNA_deseq_normalized_prot_coding_correct.csv"
 files=[meth_path,mRNA_path,mRNA_normalized_path]
-filenames=["meth","mrna","mrna normalized"]
+filenames=["meth","mrna","micro mrna"]
 predictions=[]
 true_labels=[]
 parameters = {'kernel':('linear', 'poly', 'rbf', 'sigmoid'), 'C':[1, 10,20],'random_state':[seed]}
@@ -55,7 +55,7 @@ for file,filename in zip(files,filenames):
         # PlotDir non-normalized confusion matrix
         plt.figure.Figure(figsize=(10, 10))
         plot_confusion_matrix(cnf_matrix,
-                              title=modelname+filename,classes=names)
+                              title=modelname+"-"+filename,classes=names)
 
         print(modelname+filename+" "+str(model.best_params_),file=f)
         print(classification_report(y_test, y_pred, ),file=f)

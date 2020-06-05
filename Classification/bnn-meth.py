@@ -35,7 +35,7 @@ class NN(nn.Module):
         return output
 
 
-net = NN(num_features, 1024, 5)
+net = NN(num_features, 20, 5)
 log_softmax = nn.LogSoftmax(dim=1)
 
 
@@ -119,8 +119,8 @@ y = y.astype('category').cat.codes
 meth_path = "../Data/data/preprocessed_Matrix_meth.csv"
 mRNA_path = "../Data/data/preprocessed_Matrix_miRNA_deseq_correct.csv"
 mRNA_normalized_path = "../Data/data/preprocessed_Matrix_mRNA_deseq_normalized_prot_coding_correct.csv"
-files = [meth_path]
-filenames = [ "meth"]
+files = [meth_path,mRNA_path,mRNA_normalized_path]
+filenames = ["meth","mrna","micro mrna"]
 
 for file, filename in zip(files, filenames):
     with open('../Data/outputs/'+filename+'-bnn-output.txt', 'w') as f:
