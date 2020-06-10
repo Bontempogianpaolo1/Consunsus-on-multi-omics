@@ -1,13 +1,13 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-
+from sklearn.ensemble import IsolationForest
 import pyro
 from pyro.distributions import Categorical, Normal
 from pyro.infer import SVI, Trace_ELBO
 import torch.optim as optim
 import pandas as pd
-
+from sklearn.neighbors import LocalOutlierFactor
 import numpy as np
 import utils.custom_dataset
 from sklearn.decomposition import PCA
@@ -77,10 +77,22 @@ for file, filename in zip(files, filenames):
         if (filename == "mrna"):
             X = pd.DataFrame(X[X.std().sort_values(ascending=False).head(1200).index].values.tolist())
         X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=seed)
+        lod= LocalOutlierFactor(novelty=True)
         pca = PCA(n_components=7)
         X_train_transformed = pca.fit_transform(X_train)
         X_test_transformed = pca.transform(X_test)
         model = MLP()
+        lod.fit(X_train_transformed )
+        '''
+                Not_Outliers= isoforest.fit_predict(X_train_transformed)
+                X_train_transformed=X_train_transformed[Not_Outliers==1]
+                y_train=y_train[Not_Outliers==1]
+        '''
+
+        Not_Outliers = lod.predict(X_test_transformed)
+        X_test_transformed = X_test_transformed[Not_Outliers == 1]
+        y_test = y_test[Not_Outliers == 1]
+
         optimizer = optim.Adam(model.parameters())
 
         dataset = utils.custom_dataset.CustomDataset(X_train_transformed, y_train.to_numpy(),
@@ -127,14 +139,31 @@ for file, filename in zip(files, filenames):
         print("accuracy: %d %%" % (100 * correct / total))
         import pandas as pd
 
-        pd.DataFrame(probabilities).to_csv("../Data/outputs/pred-mlp-"+filename+".csv")
+        pd.DataFrame(probabilities).to_csv("../Data/outputs/pred-mlp-isolationforest-"+filename+".csv")
         pd.DataFrame(true_labels).to_csv("../Data/outputs/true-labels.csv")
+        cnf_matrix = confusion_matrix(true_labels[1:], np.argmax(probabilities, axis=1))
+        # plt.figure(figsize=(10, 10))
+        # plot_roc(names.shape[0], y_pred, y_test_bal, names, title)
+        print()
+        np.set_printoptions(precision=2)
+        # PlotDir non-normalized confusion matrix
+        plt.figure.Figure(figsize=(10, 10))
+
+        plot_confusion_matrix(cnf_matrix,
+                              title=modelname + "-local_outlier_detection-" + filename,
+                              classes=names)
+
+        with open('../Data/outputs/' + filename + '-mlp-isolationforest-table.txt', 'w') as f2:
+            print("true label       probabilities        predicted label", file=f2)
+            for i in range(true_labels[1:].shape[0]):
+                print(str(true_labels[i + 1]) + "       " + str(np.max(probabilities[i])) + "       " + str(
+                    np.argmax(probabilities[i], axis=0)), file=f2)
         X2 = pd.read_csv("../Data/data/anomalies_preprocessed_Matrix_" + filename + ".csv", index_col=False, header=None)
         y2 = pd.read_csv("../Data/data/anomalies_preprocessed_annotation_global.csv")["label"]
         if (filename == "mrna"):
             X2 = pd.DataFrame(X2[X2.std().sort_values(ascending=False).head(1200).index].values.tolist())
         X_transformed = pca.transform(X2)
-
+        '''
         print('Prediction when network is forced to predict')
         correct = 0
         total = 0
@@ -152,18 +181,23 @@ for file, filename in zip(files, filenames):
             total += labels.size(0)
             correct += (torch.from_numpy(np.argmax(pred.detach().numpy(), axis=1)) == labels).sum().item()
         print("accuracy: %d %%" % (100 * correct / total))
-
-        cnf_matrix = confusion_matrix(true_labels[1:], np.argmax(probabilities, axis=1))
+        '''
+        y_pred= lod.predict(X_transformed)
+        y_pred[y_pred==-1]=0
+        true_label=y2.astype('category').cat.codes.to_numpy().copy()
+        true_label[true_label==0]=1
+        cnf_matrix = confusion_matrix(true_label,y_pred)
         # plt.figure(figsize=(10, 10))
         # plot_roc(names.shape[0], y_pred, y_test_bal, names, title)
         print()
         np.set_printoptions(precision=2)
         # PlotDir non-normalized confusion matrix
         plt.figure.Figure(figsize=(10, 10))
-
+        print("tot predicted")
+        print((y_pred==1).sum())
         plot_confusion_matrix(cnf_matrix,
-                              title=modelname + "-anomalies-" + filename,
-                              classes=names)
+                              title=modelname + "-local_outlier_detection-anomalies-" + filename,
+                              classes=["predicted","Unknown"])
 
         with open('../Data/outputs/' + filename + '-mlp-table.txt', 'w') as f2:
             print("true label       probabilities        predicted label", file=f2)

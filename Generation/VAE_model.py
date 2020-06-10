@@ -7,11 +7,11 @@ class VAE(nn.Module):
         super(VAE, self).__init__()
         self.size=size
         self.device = torch.device("cpu")
-        self.fc1 = nn.Linear(size, 1000)
-        self.fc21 = nn.Linear(1000, 100)
-        self.fc22 = nn.Linear(1000, 100)
-        self.fc3 = nn.Linear(100, 1000)
-        self.fc4 = nn.Linear(1000, size)
+        self.fc1 = nn.Linear(size, 2000)
+        self.fc21 = nn.Linear(2000, 5000)
+        self.fc22 = nn.Linear(2000, 5000)
+        self.fc3 = nn.Linear(5000, 2000)
+        self.fc4 = nn.Linear(2000, size)
         self.r1=nn.ReLU()
         self.r2=nn.ReLU()
 
@@ -26,7 +26,7 @@ class VAE(nn.Module):
 
     def decode(self, z):
         h3 = self.r2(self.fc3(z))
-        return torch.sigmoid(self.fc4(h3))
+        return self.fc4(h3)
 
     def forward(self, x):
         mu, logvar = self.encode(x.view(-1, self.size))
@@ -61,11 +61,11 @@ class VAE(nn.Module):
                 loss.backward()
                 train_loss += loss.item()
                 optimizer.step()
-                '''                if batch_idx % 100 == 0:
-                    print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
-                        epoch, batch_idx * len(data), len(train_loader.dataset),
-                        100. * batch_idx / len(train_loader),
-                        loss.item() / len(data)))'''
+
+        print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
+            epoch, batch_idx * len(data), len(train_loader.dataset),
+            100. * batch_idx / len(train_loader),
+            loss.item() / len(data)))
 
 
         #print('====> Epoch: {} Average loss: {:.4f}'.format(epoch, train_loss / len(train_loader.dataset)))

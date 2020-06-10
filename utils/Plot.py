@@ -232,3 +232,23 @@ def plot_diagram(df):
     print("diagram displayed")
     print("===================")
 
+def plot_outliers(X,y,X_train,title):
+
+    colors = np.array(list(islice(cycle(['b', 'r', 'g', 'c', 'm', 'y', 'k']), 4)))
+    markers = np.array(list(islice(cycle(['o', 'v', '^', '<', '>', '8', 's']), 4)))
+    lista = [1,-1]
+
+    fig = plt.figure(figsize=(10, 10))
+    ax = plt.axes(projection='3d')
+    for l, c, m in zip(lista, colors, markers):
+        ax.scatter(X[y == l, 0], X[y == l, 1], X[y == l, l], c=c, marker=m,label ='class %s' % l)
+
+    colors = np.array(list(islice(cycle([ 'g', 'c', 'm', 'y', 'k','b', 'r']), 4)))
+    markers = np.array(list(islice(cycle(['o', 'v', '^', '<', '>', '8', 's']), 4)))
+    lista = [1]
+    for l, c, m in zip(lista, colors, markers):
+        ax.scatter(X_train[0], X_train[1], X_train[2], c=c, marker=m,label ='train-set without outliers')
+    ax.legend(loc='upper left', fontsize=40)
+    plt.savefig("../Data/outputs/" + title + ".png")
+    plt.pause(0.2)
+
