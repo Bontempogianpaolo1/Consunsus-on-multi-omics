@@ -1,26 +1,28 @@
+import matplotlib as plt
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+import pyro
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-import torch.optim as optim
-import pyro
+from matplotlib import colors
 from pyro.distributions import Categorical, Normal
 from pyro.infer import SVI, Trace_ELBO
 from pyro.optim import Adam
-import pandas as pd
-import numpy as np
-import utils.custom_dataset
 from sklearn.decomposition import PCA
-import matplotlib.pyplot as plt
-from matplotlib import colors
-import os
-from torch.utils.data.dataset import Dataset
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import confusion_matrix, accuracy_score
 from sklearn.metrics import classification_report
-import matplotlib as plt
+from sklearn.metrics import confusion_matrix, accuracy_score
+from sklearn.model_selection import train_test_split
+from torch.utils.data.dataset import Dataset
+
+import utils.custom_dataset
 from utils.Plot import plot_confusion_matrix
+
 num_iterations = 5
-num_features=7
+num_features = 7
+
+
 class NN(nn.Module):
 
     def __init__(self, input_size, hidden_size, output_size):
@@ -60,7 +62,7 @@ def predict(x):
     sampled_models = [guide(None, None) for _ in range(num_samples)]
     yhats = [model(x).data for model in sampled_models]
     mean = torch.mean(torch.stack(yhats), 0)
-    return np.argmax(mean.numpy(), axis=1),mean
+    return np.argmax(mean.numpy(), axis=1), mean
 
 
 softplus = torch.nn.Softplus()
@@ -98,15 +100,15 @@ def guide(x_data, y_data):
 
 def give_uncertainities(x):
     sampled_models = [guide(None, None) for _ in range(num_samples)]
-    yhats = [F.log_softmax(model(x.view(-1,num_features)).data, 1).detach().numpy() for model in sampled_models]
+    yhats = [F.log_softmax(model(x.view(-1, num_features)).data, 1).detach().numpy() for model in sampled_models]
     return np.asarray(yhats)
 
 
-def test_batch(images, labels,classes, plot=True):
+def test_batch(images, labels, classes, plot=True):
     y = give_uncertainities(images)
     predicted_for_images = 0
     correct_predictions = 0
-    new_prediction=labels.copy()
+    new_prediction = labels.copy()
     for i in range(len(labels)):
 
         if (plot):
@@ -162,7 +164,7 @@ def test_batch(images, labels,classes, plot=True):
         predicted = np.argmax(all_digits_prob)
         print(i)
         if (highted_something):
-            new_prediction[i]=predicted
+            new_prediction[i] = predicted
             predicted_for_images += 1
             if (labels[i].item() == predicted):
                 if (plot):
@@ -183,7 +185,7 @@ def test_batch(images, labels,classes, plot=True):
         print("Accuracy when predicted: ", correct_predictions / predicted_for_images)
     totalscore = accuracy_score(labels, new_prediction)
     print("final score : %f" % totalscore)
-    return len(labels), correct_predictions, predicted_for_images,new_prediction
+    return len(labels), correct_predictions, predicted_for_images, new_prediction
 
 
 optim = Adam({"lr": 0.01})
@@ -210,16 +212,16 @@ y = y.astype('category').cat.codes
 meth_path = "../Data/data/preprocessed_Matrix_meth.csv"
 mRNA_path = "../Data/data/preprocessed_Matrix_miRNA_deseq_correct.csv"
 mRNA_normalized_path = "../Data/data/preprocessed_Matrix_mRNA_deseq_normalized_prot_coding_correct.csv"
-files = [meth_path,mRNA_path,mRNA_normalized_path]
-filenames = ["meth","mrna","micro mrna"]
-modelname="bnn-with-threeshold"
+files = [meth_path, mRNA_path, mRNA_normalized_path]
+filenames = ["meth", "mrna", "micro mrna"]
+modelname = "bnn-with-threeshold"
 for file, filename in zip(files, filenames):
-    with open('../Data/outputs/'+filename+'-'+modelname+'-output.txt', 'w') as f:
-        X = pd.read_csv(file,index_col=False,header=None)
+    with open('../Data/outputs/' + filename + '-' + modelname + '-output.txt', 'w') as f:
+        X = pd.read_csv(file, index_col=False, header=None)
         if (filename == "mrna"):
             X = pd.DataFrame(X[X.std().sort_values(ascending=False).head(1200).index].values.tolist())
-        X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=seed)
-        pca = PCA(n_components=7)
+        X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=seed, stratify=y)
+        pca = PCA(n_components=num_features)
         X_train_transformed = pca.fit_transform(X_train)
         X_test_transformed = pca.transform(X_test)
         dataset = utils.custom_dataset.CustomDataset(X_train_transformed, y_train.to_numpy(),
@@ -240,46 +242,15 @@ for file, filename in zip(files, filenames):
 
         print(filename)
 
-        num_samples = 10
-
-
-        def predict(x):
-            sampled_models = [guide(None, None) for _ in range(num_samples)]
-            yhats = [model(x).data for model in sampled_models]
-            mean = torch.mean(torch.stack(yhats), 0)
-            return np.argmax(mean.numpy(), axis=1),mean
-
-        '''
-        print('Prediction when network is forced to predict')
-        correct = 0
-        total = 0
-        dataset = utils.custom_dataset.CustomDataset(X_test_transformed, y_test.to_numpy(),
-                                                     transform=utils.custom_dataset.ToTensor())
-        loader = torch.utils.data.DataLoader(dataset, batch_size=32)
-        probabilities = np.ndarray(shape=(0,5))
-        true_labels= np.ndarray([])
-        for j, data in enumerate(loader):
-            images = data["X"]
-            labels = data["y"]
-            predicted,mean = predict(images.view(-1, num_features))
-            probabilities=np.append(probabilities,mean,axis=0)
-            true_labels = np.append(true_labels, labels)
-            total += labels.size(0)
-            correct += (torch.from_numpy(predicted) == labels).sum().item()
-        print("accuracy: %d %%" % (100 * correct / total))
-        import pandas as pd
-
-        pd.DataFrame(probabilities).to_csv("../Data/outputs/pred-bnn-"+filename+".csv")
-        pd.DataFrame(true_labels).to_csv("../Data/outputs/true-labels.csv")
-        '''
-        tot, correct_predictions, predicted_for_images,new_prediction=test_batch(torch.from_numpy(X_test_transformed).float(),y_test.to_numpy(),names,plot=False)
+        tot, correct_predictions, predicted_for_images, new_prediction = test_batch(
+            torch.from_numpy(X_test_transformed).float(), y_test.to_numpy(), names, plot=False)
         print("Summary")
         print("Total images: ", tot)
         print("Predicted for: ", predicted_for_images)
         print("Accuracy when predicted: ", correct_predictions / predicted_for_images)
         print("Confusion matrix")
-        #totalscore = accuracy_score(y_test,new_prediction)
-        #print("final score : %f" % totalscore)
+        # totalscore = accuracy_score(y_test,new_prediction)
+        # print("final score : %f" % totalscore)
         cnf_matrix = confusion_matrix(y_test, new_prediction)
         # plt.figure(figsize=(10, 10))
         # plot_roc(names.shape[0], y_pred, y_test_bal, names, title)
@@ -287,25 +258,24 @@ for file, filename in zip(files, filenames):
         np.set_printoptions(precision=2)
         # PlotDir non-normalized confusion matrix
         plt.figure.Figure(figsize=(10, 10))
+        plot_confusion_matrix(cnf_matrix, title=modelname + "-" + filename, classes=names.append(pd.Index(["Unknown"])))
 
-        plot_confusion_matrix(cnf_matrix,
-                              title=modelname + "-" + filename, classes=names.append(pd.Index(["Unknown"])))
-
-        #print(modelname + filename + " " + str(model.best_params_), file=f)
+        # print(modelname + filename + " " + str(model.best_params_), file=f)
         print(classification_report(y_test, new_prediction, ), file=f)
-        X2 = pd.read_csv("../Data/data/anomalies_preprocessed_Matrix_" + filename + ".csv", index_col=False, header=None)
+
+        X2 = pd.read_csv("../Data/data/anomalies_preprocessed_Matrix_" + filename + ".csv", index_col=False,
+                         header=None)
         y2 = pd.read_csv("../Data/data/anomalies_preprocessed_annotation_global.csv")["label"]
-        if(filename=="mrna"):
+        if (filename == "mrna"):
             X2 = pd.DataFrame(X2[X2.std().sort_values(ascending=False).head(1200).index].values.tolist())
         X_transformed = pca.transform(X2)
-
         tot, correct_predictions, predicted_for_images, new_prediction = test_batch(
             torch.from_numpy(X_transformed).float(), y2.astype('category').cat.codes.to_numpy(),
             y2.astype('category').cat.categories, plot=False)
         print("Summary")
         print("Total images: ", tot)
         print("Predicted for: ", predicted_for_images)
-        #print("Accuracy when predicted: ", correct_predictions / predicted_for_images)
+        # print("Accuracy when predicted: ", correct_predictions / predicted_for_images)
         print("Confusion matrix")
         # totalscore = accuracy_score(y_test,new_prediction)
         # print("final score : %f" % totalscore)

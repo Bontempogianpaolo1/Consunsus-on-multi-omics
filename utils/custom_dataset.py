@@ -1,15 +1,5 @@
-from torch.utils.data import ConcatDataset, Dataset
-
-from torch.utils.data import Dataset
 import torch
-import glob
-import os
-import os.path as osp
-import numpy as np
-import os
-from sklearn.decomposition import PCA
-
-import matplotlib.pyplot as plt
+from torch.utils.data import Dataset
 
 
 class CustomDataset(Dataset):
@@ -18,7 +8,7 @@ class CustomDataset(Dataset):
     After this selection of samples has been made, it is possible to transform the target-labels,
     which can be useful when doing continual learning with fixed number of output units.'''
 
-    def __init__(self, X,y,transform=None):
+    def __init__(self, X, y, transform=None):
         '''
         Parameters
         ----------
@@ -44,6 +34,7 @@ class CustomDataset(Dataset):
 
         return sample
 
+
 '''
 class RescaleUnit(object):
     Rescales images to unit range [0,1]
@@ -56,6 +47,7 @@ class RescaleUnit(object):
         sample = {'image': image, 'label': label}
         return sample
 '''
+
 
 class ToTensor(object):
     '''Convert ndarrays in sample to Tensors'''
@@ -71,6 +63,3 @@ class ToTensor(object):
         # torch image: C X H X W
 
         return {'X': torch.from_numpy(image).float(), 'y': label}
-
-
-

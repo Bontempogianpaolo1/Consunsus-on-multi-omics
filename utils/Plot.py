@@ -7,7 +7,8 @@ from sklearn.metrics import roc_curve, auc
 from sklearn.model_selection import learning_curve
 import itertools
 from matplotlib.ticker import PercentFormatter
-
+from mpl_toolkits.mplot3d import Axes3D
+from sklearn.decomposition import PCA
 
 def plot_roc(n_classes, y_score, y_test2, names, title):
     y_score = pd.factorize(y_score, )
@@ -59,35 +60,51 @@ def plot_pareto(max_variance,variance,n_components,title):
     plt.show()
 
 
-def pareto_plot(df, x=None, y=None, title=None, show_pct_y=False, pct_format='{0:.0%}'):
-    xlabel = x
-    ylabel = y
-    tmp = df.sort_values(y, ascending=False)
-    x = tmp[x].values
-    y = tmp[y].values
-    weights = y / y.sum()
-    cumsum = y#weights.cumsum()
+def pareto_plot(df, title=None, show_pct_y=False, pct_format='{0:.0%}'):
+    """
+           df = pd.DataFrame({
+               'components': components[1:].tolist(),
+               'variance': variances[1:].tolist(),
+               'score': scores[1:].tolist(),
+           })
+    """
+    tmp = df
+    x = tmp['components'].values
+    variances = tmp['variance'].values
+    scores = tmp['score'].values
+    weights = variances / variances.sum()
+    cumsum = weights.cumsum()
 
     fig, ax1 = plt.subplots()
-    ax1.bar(x, y)
-    ax1.set_xlabel(xlabel)
-    ax1.set_ylabel(ylabel)
+    ax1.bar(x, variances)
+    ax1.set_xlabel("pc")
+    ax1.set_ylabel("variance")
 
     ax2 = ax1.twinx()
-    ax2.plot(x, cumsum, '-ro', alpha=0.5)
-    ax2.set_ylabel('', color='r')
+    ax2.plot(x, scores, '-ro', alpha=0.5)
+    ax2.set_ylabel('accuracy', color='r')
     ax2.tick_params('y', colors='r')
-
     vals = ax2.get_yticks()
     ax2.set_yticklabels(['{:,.2%}'.format(x) for x in vals])
-
     # hide y-labels on right side
     if not show_pct_y:
         ax2.set_yticks([])
+    formatted_weights = [pct_format.format(x) for x in scores]
+    for i, txt in enumerate(formatted_weights):
+        ax2.annotate(txt, (x[i], scores[i]), fontweight='heavy')
 
+    ax3 = ax1.twinx()
+    ax3.plot(x, cumsum, '-yo', alpha=0.5)
+    ax3.set_ylabel('', color='r')
+    ax3.tick_params('y', colors='r')
+    vals = ax3.get_yticks()
+    ax3.set_yticklabels(['{:,.2%}'.format(x) for x in vals])
+    # hide y-labels on right side
+    if not show_pct_y:
+        ax3.set_yticks([])
     formatted_weights = [pct_format.format(x) for x in cumsum]
     for i, txt in enumerate(formatted_weights):
-        ax2.annotate(txt, (x[i], cumsum[i]), fontweight='heavy')
+        ax3.annotate(txt, (x[i], cumsum[i]), fontweight='heavy')
 
     if title:
         plt.title(title)
@@ -129,7 +146,7 @@ def plot_confusion_matrix(cm, classes,
     plt.ylabel('True label')
     plt.xlabel('Predicted label')
     plt.tight_layout()
-    plt.savefig("../Data/outputs/"+title + ".png")
+    #plt.savefig("../Data/outputs/"+title + ".png")
     plt.pause(0.2)
 
 
@@ -232,8 +249,15 @@ def plot_diagram(df):
     print("diagram displayed")
     print("===================")
 
-def plot_outliers(X,y,X_train,title):
 
+
+def plot_outliers(X,y,X_train,title):
+    #pca=PCA(n_components=3)
+    #X_train=pca.fit_transform(X_train)
+    #X=pca.transform(X)
+    #X=pca.transform(X)
+    #X_train=pca.transform(X_train)
+    #X_train=X_train.to_numpy()
     colors = np.array(list(islice(cycle(['b', 'r', 'g', 'c', 'm', 'y', 'k']), 4)))
     markers = np.array(list(islice(cycle(['o', 'v', '^', '<', '>', '8', 's']), 4)))
     lista = [1,-1]
@@ -241,14 +265,14 @@ def plot_outliers(X,y,X_train,title):
     fig = plt.figure(figsize=(10, 10))
     ax = plt.axes(projection='3d')
     for l, c, m in zip(lista, colors, markers):
-        ax.scatter(X[y == l, 0], X[y == l, 1], X[y == l, l], c=c, marker=m,label ='class %s' % l)
+        ax.scatter(X[y == l, 0], X[y == l, 1], X[y == l, 2], c=c, marker=m,label ='class %s' % l)
 
     colors = np.array(list(islice(cycle([ 'g', 'c', 'm', 'y', 'k','b', 'r']), 4)))
     markers = np.array(list(islice(cycle(['o', 'v', '^', '<', '>', '8', 's']), 4)))
     lista = [1]
     for l, c, m in zip(lista, colors, markers):
-        ax.scatter(X_train[0], X_train[1], X_train[2], c=c, marker=m,label ='train-set without outliers')
-    ax.legend(loc='upper left', fontsize=40)
+        ax.scatter(X_train[:,0], X_train[:,1], X_train[:,2], c=c, marker=m,label ='train-set without outliers')
+    ax.legend(loc='upper left', fontsize=12)
+    plt.title(title)
     plt.savefig("../Data/outputs/" + title + ".png")
     plt.pause(0.2)
-
