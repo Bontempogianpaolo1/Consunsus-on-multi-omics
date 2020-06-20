@@ -7,7 +7,7 @@ max_features = 5000
 
 
 def union(row):
-    return str(row["is_tumor"]) + "-" + row["project_id"]
+    return str(row["is_tumor"]) + "-" + row["project_id"].split("-")[1]
 
 
 def map(row):
@@ -18,7 +18,7 @@ data = pd.read_csv(path_annotation, sep='\t')
 data["case_id"] = data.apply(lambda row: map(row), axis=1)
 cases_removed = data[data["project_id"] == "TCGA-SARC"]
 data = data[data["project_id"] != "TCGA-SARC"]
-data["is_tumor"] = data["is_tumor"].map({0: 'sane', 1: 'tumor'})
+data["is_tumor"] = data["is_tumor"].map({0: 'healthy', 1: 'tumor'})
 data["label"] = data.apply(lambda row: union(row), axis=1)
 data = data.sort_values(by="case_id")
 # data=data.drop(columns=["is_tumor","project_id"])

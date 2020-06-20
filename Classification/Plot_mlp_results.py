@@ -60,5 +60,5 @@ def plot_mlp_results():
         np.set_printoptions(precision=2)
         # PlotDir non-normalized confusion matrix
         plt.figure.Figure(figsize=(10, 10))
-        plot_confusion_matrix(cnf_matrix, title="comparisonmlp", classes=names)
+        plot_confusion_matrix(cnf_matrix, title="comparison-mlp", classes=names)
         print(classification_report(target.drop(0), y_pred, ), file=f)

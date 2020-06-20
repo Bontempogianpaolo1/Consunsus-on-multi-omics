@@ -4,7 +4,7 @@ from scipy import stats
 path_annotation = "./original/anomalies_annotation_global.csv"
 path_meth = "./original/anomalies_Matrix_meth.csv"
 max_features = 5000
-filenames = ["meth", "mrna", "micro mrna"]
+filenames = ["meth", "miRNA", "mRNA"]
 
 
 def union(row):

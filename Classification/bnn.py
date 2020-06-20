@@ -7,6 +7,7 @@ from pyro.distributions import Categorical, Normal
 from pyro.infer import SVI, Trace_ELBO
 from pyro.optim import Adam
 from torch.utils.data.dataset import Dataset
+
 import utils.custom_dataset
 
 
@@ -20,6 +21,7 @@ class BNN(nn.Module):
         self.optim = Adam({"lr": 0.01})
         self.num_features = input_size
         self.num_iterations = 50
+        self.num_samples=100
 
     def forward(self, x):
         output = self.fc1(x)
@@ -78,6 +80,7 @@ class BNN(nn.Module):
 
     def train_step(self, X, y_train, plot=False):
         self.train()
+        y_train = y_train["label"].astype('category').cat.codes
         pyro.clear_param_store()
         dataset = utils.custom_dataset.CustomDataset(X, y_train.to_numpy(),
                                                      transform=utils.custom_dataset.ToTensor())
@@ -95,6 +98,7 @@ class BNN(nn.Module):
 
     def test_forced(self, X, y_test):
         self.eval()
+        y_test = y_test["label"].astype('category').cat.codes
         dataset = utils.custom_dataset.CustomDataset(X, y_test.to_numpy(),
                                                      transform=utils.custom_dataset.ToTensor())
         loader = torch.utils.data.DataLoader(dataset, batch_size=32)
@@ -112,6 +116,49 @@ class BNN(nn.Module):
             correct += (torch.from_numpy(predicted) == labels).sum().item()
         print("accuracy: %d %%" % (100 * correct / total))
         return probabilities, true_labels
+
+    def give_uncertainities(self, x):
+        sampled_models = [self.guide(None, None) for _ in range(self.num_samples)]
+        yhats = [F.log_softmax(model(x.view(-1, self.num_features)).data, 1).detach().numpy() for model in
+                 sampled_models]
+        return np.asarray(yhats)
+
+    def test_batch(self, images, labels, classes, plot=True):
+        labels=labels["label"].astype('category').cat.codes.to_numpy()
+        y = self.give_uncertainities(images)
+        predicted_for_images = 0
+        correct_predictions = 0
+        new_prediction = labels.copy()
+        probabilities = []
+        for i in range(len(labels)):
+            all_digits_prob = []
+            highted_something = False
+            temp_probabilities=[]
+            for j in range(len(classes)):
+                highlight = False
+                histo = []
+                histo_exp = []
+                for z in range(y.shape[0]):
+                    histo.append(y[z][i][j])
+                    histo_exp.append(np.exp(y[z][i][j]))
+
+                prob = np.percentile(histo_exp, 50)  # sampling median probability
+                temp_probabilities.append(prob)
+                if prob > 0.9:  # select if network thinks this sample is 20% chance of this being a label
+                    highlight = True  # possibly an answer
+                all_digits_prob.append(prob)
+                if highlight:
+                    highted_something = True
+            predicted = np.argmax(all_digits_prob)
+            probabilities.append(temp_probabilities)
+            if highted_something:
+                new_prediction[i] = predicted
+                predicted_for_images += 1
+                if labels[i].item() == predicted:
+                    correct_predictions += 1.0
+            else:
+                new_prediction[i] = 5
+        return len(labels), correct_predictions, predicted_for_images, new_prediction,probabilities
 
 
 '''

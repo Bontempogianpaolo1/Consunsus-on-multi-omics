@@ -1,0 +1,13 @@
+random-forestmeth {'criterion': 'gini', 'max_depth': 10, 'min_samples_split': 2}
+              precision    recall  f1-score   support
+
+           0       0.83      0.83      0.83         6
+           1       1.00      0.50      0.67         6
+           2       0.71      0.94      0.81        16
+           3       0.95      0.98      0.96       128
+           4       0.97      0.89      0.93        72
+
+    accuracy                           0.93       228
+   macro avg       0.89      0.83      0.84       228
+weighted avg       0.94      0.93      0.93       228
+

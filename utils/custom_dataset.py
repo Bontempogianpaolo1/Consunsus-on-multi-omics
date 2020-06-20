@@ -34,6 +34,40 @@ class CustomDataset(Dataset):
 
         return sample
 
+class CustomDataset2(Dataset):
+    '''To sub-sample a dataset, taking only those samples with label in [sub_labels].
+
+    After this selection of samples has been made, it is possible to transform the target-labels,
+    which can be useful when doing continual learning with fixed number of output units.'''
+
+    def __init__(self, X, y,z, transform=None):
+        '''
+        Parameters
+        ----------
+        imgs : iterable of image paths.
+        transform : callable. Optional transformer for samples.
+        '''
+
+        self.X = X
+        self.y = y
+        self.names= z
+        self.transform = transform
+
+    def __len__(self):
+        return len(self.X)
+
+    def __getitem__(self, idx):
+        sample = self.X[idx]
+        label = self.y[idx]
+        name = self.names[idx]
+        # expand dimensions if necessary
+
+        sample = {'X': sample, 'y': label,'name':name}
+        if self.transform:
+            sample = self.transform(sample)
+
+        return sample
+
 
 '''
 class RescaleUnit(object):

@@ -60,7 +60,7 @@ def plot_pareto(max_variance,variance,n_components,title):
     plt.show()
 
 
-def pareto_plot(df, title=None, show_pct_y=False, pct_format='{0:.0%}'):
+def pareto_plot(df, title=None, show_pct_y=False, pct_format='{:.1%}'):
     """
            df = pd.DataFrame({
                'components': components[1:].tolist(),
@@ -85,29 +85,43 @@ def pareto_plot(df, title=None, show_pct_y=False, pct_format='{0:.0%}'):
     ax2.set_ylabel('accuracy', color='r')
     ax2.tick_params('y', colors='r')
     vals = ax2.get_yticks()
-    ax2.set_yticklabels(['{:,.2%}'.format(x) for x in vals])
+    ax2.set_yticklabels(['{:,.1%}'.format(x) for x in vals])
+    #ax2.yaxis.set_major_formatter(PercentFormatter())
     # hide y-labels on right side
-    if not show_pct_y:
-        ax2.set_yticks([])
+    #if not show_pct_y:
+    #    ax2.set_yticks([])
     formatted_weights = [pct_format.format(x) for x in scores]
     for i, txt in enumerate(formatted_weights):
         ax2.annotate(txt, (x[i], scores[i]), fontweight='heavy')
 
     ax3 = ax1.twinx()
+    offset=60
+    ax3.spines["right"].set_position(("axes", 1.2))
+
+    def make_patch_spines_invisible(ax):
+        ax.set_frame_on(True)
+        ax.patch.set_visible(False)
+        for sp in ax.spines.values():
+            sp.set_visible(False)
+
+    make_patch_spines_invisible(ax3)
+    # Second, show the right spine.
+    ax3.spines["right"].set_visible(True)
     ax3.plot(x, cumsum, '-yo', alpha=0.5)
-    ax3.set_ylabel('', color='r')
-    ax3.tick_params('y', colors='r')
+    ax3.set_ylabel('cumulative variance', color='y')
+    ax3.tick_params('y', colors='y')
     vals = ax3.get_yticks()
-    ax3.set_yticklabels(['{:,.2%}'.format(x) for x in vals])
+    ax3.set_yticklabels(['{:,.1%}'.format(x) for x in vals])
     # hide y-labels on right side
-    if not show_pct_y:
-        ax3.set_yticks([])
+    #ax3.yaxis.set_major_formatter(PercentFormatter())
+    #if not show_pct_y:
+    #    ax3.set_yticks([])
     formatted_weights = [pct_format.format(x) for x in cumsum]
     for i, txt in enumerate(formatted_weights):
         ax3.annotate(txt, (x[i], cumsum[i]), fontweight='heavy')
 
-    if title:
-        plt.title(title)
+    #if title:
+    #    plt.title(title)
 
     plt.tight_layout()
     plt.savefig("../Data/outputs/paretos/" + title + ".png")
@@ -130,7 +144,7 @@ def plot_confusion_matrix(cm, classes,
 
     plt.imshow(cm, interpolation='nearest', cmap=cmap)
 
-    plt.title(title)
+    #plt.title(title)
     plt.colorbar()
     tick_marks = np.arange(len(classes))
     plt.xticks(tick_marks, classes, rotation=45)
@@ -146,7 +160,7 @@ def plot_confusion_matrix(cm, classes,
     plt.ylabel('True label')
     plt.xlabel('Predicted label')
     plt.tight_layout()
-    #plt.savefig("../Data/outputs/"+title + ".png")
+    plt.savefig("../Data/outputs/"+title + ".png")
     plt.pause(0.2)
 
 

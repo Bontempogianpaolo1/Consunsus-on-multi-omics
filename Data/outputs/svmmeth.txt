@@ -1,0 +1,13 @@
+svmmeth {'C': 10, 'kernel': 'rbf', 'random_state': 1200}
+              precision    recall  f1-score   support
+
+           0       0.71      0.83      0.77         6
+           1       0.80      0.67      0.73         6
+           2       0.83      0.94      0.88        16
+           3       0.97      0.93      0.95       128
+           4       0.89      0.93      0.91        72
+
+    accuracy                           0.92       228
+   macro avg       0.84      0.86      0.85       228
+weighted avg       0.92      0.92      0.92       228
+

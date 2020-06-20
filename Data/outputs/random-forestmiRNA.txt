@@ -1,0 +1,13 @@
+random-forestmiRNA {'criterion': 'entropy', 'max_depth': 5, 'min_samples_split': 2}
+              precision    recall  f1-score   support
+
+           0       0.80      0.67      0.73         6
+           1       0.80      0.67      0.73         6
+           2       0.93      0.88      0.90        16
+           3       0.97      0.98      0.97       128
+           4       0.93      0.96      0.95        72
+
+    accuracy                           0.95       228
+   macro avg       0.89      0.83      0.86       228
+weighted avg       0.95      0.95      0.95       228
+

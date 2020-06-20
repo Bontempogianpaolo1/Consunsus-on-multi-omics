@@ -22,7 +22,7 @@ meth_path = "../Data/data/preprocessed_Matrix_meth.csv"
 mRNA_path = "../Data/data/preprocessed_Matrix_miRNA_deseq_correct.csv"
 mRNA_normalized_path = "../Data/data/preprocessed_Matrix_mRNA_deseq_normalized_prot_coding_correct.csv"
 files = [meth_path, mRNA_path, mRNA_normalized_path]
-filenames = ["meth", "mrna", "micro mrna"]
+filenames = ["meth", "miRNA", "mRNA"]
 parameters = {'criterion': ["gini", "entropy"], 'max_depth': [5, 10, 15], 'min_samples_split': [2, 4, 10]}
 
 predictions = []
@@ -81,7 +81,7 @@ np.set_printoptions(precision=2)
 # PlotDir non-normalized confusion matrix
 plt.figure.Figure(figsize=(10, 10))
 plot_confusion_matrix(cnf_matrix,
-                      title="comparison" + modelname, classes=names)
+                      title="consensus-" + modelname, classes=names)
 # plt.pyplot.savefig(modelname+".png")
 
 with open('../Data/outputs/' + modelname + '.txt', 'w') as f:

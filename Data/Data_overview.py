@@ -7,11 +7,13 @@ path_meth = "./data/Matrix_meth.csv"
 def union(row):
     return str(row["is_tumor"]) + "-" + row["project_id"]
 
-
-data = pd.read_csv(path_annotation, sep='\t')
+annotation_path = "../Data/data/preprocessed_annotation_global.csv"
+y = pd.read_csv(annotation_path)
+#data = pd.read_csv(path_annotation, sep='\t')
+data=y
 print("annotation")
 print("shape :" + str(data.shape))
-print("with tumor: " + str(sum(data["is_tumor"] == 1)))
+print("with tumor: " + str(sum(data["is_tumor"] == "tumor")))
 print("# tumor types: " + str(len(data["project_id"].unique())))
 data["newlabel"] = data.apply(lambda row: union(row), axis=1)
 for type in data["project_id"].unique():

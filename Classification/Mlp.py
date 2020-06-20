@@ -35,6 +35,7 @@ class MLP(nn.Module):
 
     def train_step(self, X, y_train, plot=False):
         self.train()
+        y_train = y_train["label"].astype('category').cat.codes
         dataset = utils.custom_dataset.CustomDataset(X, y_train.to_numpy(),
                                                      transform=utils.custom_dataset.ToTensor())
         loader = torch.utils.data.DataLoader(dataset, batch_size=32, shuffle=True)
@@ -53,8 +54,29 @@ class MLP(nn.Module):
             if plot:
                 print("Epoch ", j, " Loss ", total_epoch_loss_train)
 
+    def train_step2(self, X, y_train, plot=False):
+        self.train()
+        #y_train = y_train["label"].astype('category').cat.codes
+        dataset = utils.custom_dataset.CustomDataset(X, y_train.to_numpy(),
+                                                     transform=utils.custom_dataset.ToTensor())
+        loader = torch.utils.data.DataLoader(dataset, batch_size=32, shuffle=True)
+        self.train()
+        for j in range(self.num_iterations):
+            loss = 0
+            for batch_id, data in enumerate(loader):
+                # calculate the loss and take a gradient step
+                pred = self(data["X"].view(-1, data["X"].shape[1]))
+                loss = self.loss(pred, data["y"])
+                self.optimizer.zero_grad()
+                loss.backward()
+                self.optimizer.step()
+            normalizer_train = len(loader.dataset)
+            total_epoch_loss_train = loss.item() / normalizer_train
+            if plot:
+                print("Epoch ", j, " Loss ", total_epoch_loss_train)
     def test_forced(self, X, y_test):
         self.eval()
+        y_test = y_test["label"].astype('category').cat.codes
         correct = 0
         total = 0
         dataset = utils.custom_dataset.CustomDataset(X, y_test.to_numpy(),
@@ -84,21 +106,21 @@ if __name__ == "__main__":
     num_features = 7
     seed = 1200
     annotation_path = "../Data/data/preprocessed_annotation_global.csv"
-    y = pd.read_csv(annotation_path)["label"]
-    names = y.astype('category').cat.categories
-    y = y.astype('category').cat.codes
+    y = pd.read_csv(annotation_path)
+    names = y["label"].astype('category').cat.categories
+    #y = y.astype('category').cat.codes
     meth_path = "../Data/data/preprocessed_Matrix_meth.csv"
     mRNA_path = "../Data/data/preprocessed_Matrix_miRNA_deseq_correct.csv"
     mRNA_normalized_path = "../Data/data/preprocessed_Matrix_mRNA_deseq_normalized_prot_coding_correct.csv"
     files = [meth_path, mRNA_path, mRNA_normalized_path]
-    filenames = ["meth", "mrna", "micro mrna"]
+    filenames = ["meth", "miRNA", "mRNA"]
     modelname = "mlp"
     for file, filename in zip(files, filenames):
         with open('../Data/outputs/' + filename + '-bnn-output.txt', 'w') as f:
             X = pd.read_csv(file, index_col=False, header=None)
             if filename == "mrna":
                 X = pd.DataFrame(X[X.std().sort_values(ascending=False).head(1200).index].values.tolist())
-            X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=seed, stratify=y)
+            X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=seed, stratify=y["label"])
             pca = PCA(n_components=num_features)
             X_train_transformed = pca.fit_transform(X_train)
             X_test_transformed = pca.transform(X_test)
