@@ -1,4 +1,4 @@
-# Multi-omics classification on kidney samplesexploiting uncertainty-aware models
+# Multi-omics classification on kidney samples exploiting uncertainty-aware models
 Due to the huge amount of available omic data, classifying samples according to various omics is a complex process. One of the most common approaches consists of creating a classifier for each omic and subsequently making a consensus among the classifiers that assigns to each sample the most voted class among the outputs on the individual omics. 
  
 However, this approach does not consider the confidence in the prediction ignoring that a biological information coming from a certain omic may be more reliable than others.
@@ -10,12 +10,12 @@ This tool can therefore be particularly useful in clinical practice, allowing ph
 
 # Setup
 
-Data: for privacy reasons the data are not available. For requests leave a comment.
+The code is freely accessible at LINK, while mRNA, miRNA and meth data can be obtained from the GDC database\cite{GDC} or upon request to the authors.
 
 After the download run the Data/Anomalies_Data_normalize.py to normalize and prepocess data.
-To Have a visualization of the data run Data/pca_visualization.ipynb
+To have a visualization of the data run Data/pca_visualization.ipynb.
 
-To obtain several confusion matrices on different omics using mlp,BNN, and MLPTREE run Classification/outliers.py
-To obtain several confusion matrices on different omics using SVM and Random Forest  run Classification/random_forest.py and Classification/svm.py
-To obtain several confusion matrices on consunsus using mlp,BNN, and MLPTREE run Classification/plot_comparison-new.py(Classification/outliers.py must run first)
+To obtain the confusion matrices on different omics using mlp, BNN, and MLPTREE run Classification/outliers.py.
+To obtain the confusion matrices on different omics using SVM and Random Forest  run Classification/random_forest.py and Classification/svm.py.
+To obtain the confusion matrices on consunsus using mlp, BNN, and MLPTREE run Classification/plot_comparison-new.py(Classification/outliers.py must run first).
 
