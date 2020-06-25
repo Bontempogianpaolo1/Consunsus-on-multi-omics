@@ -10,7 +10,7 @@ This tool can therefore be particularly useful in clinical practice, allowing ph
 
 # Setup
 
-The code is freely accessible , while mRNA, miRNA and meth data can be obtained from the GDC database\citep{lia_corrales_2015_15991} or upon request to the authors.
+The code is freely accessible , while mRNA, miRNA and meth data can be obtained from the [GDC database](https://portal.gdc.cancer.gov/) or upon request to the authors.
 
 After the download run the Data/Anomalies_Data_normalize.py to normalize and prepocess data.
 To have a visualization of the data run Data/pca_visualization.ipynb.
@@ -21,13 +21,4 @@ To obtain the confusion matrices on different omics using SVM and Random Forest 
 
 To obtain the confusion matrices on consunsus using mlp, BNN, and MLPTREE run Classification/plot_comparison-new.py(Classification/outliers.py must run first).
 
-@misc{lia_corrales_2015_15991,
-    author       = {Lia Corrales},
-    title        = {{dust: Calculate the intensity of dust scattering halos in the X-ray}},
-    month        = mar,
-    year         = 2015,
-    doi          = {10.5281/zenodo.15991},
-    version      = {1.0},
-    publisher    = {Zenodo},
-    url          = {https://doi.org/10.5281/zenodo.15991}
-    }
+
