@@ -10,12 +10,14 @@ This tool can therefore be particularly useful in clinical practice, allowing ph
 
 # Setup
 
-The code is freely accessible at LINK, while mRNA, miRNA and meth data can be obtained from the GDC database\cite{GDC} or upon request to the authors.
+The code is freely accessible , while mRNA, miRNA and meth data can be obtained from the GDC database or upon request to the authors.
 
 After the download run the Data/Anomalies_Data_normalize.py to normalize and prepocess data.
 To have a visualization of the data run Data/pca_visualization.ipynb.
 
 To obtain the confusion matrices on different omics using mlp, BNN, and MLPTREE run Classification/outliers.py.
+
 To obtain the confusion matrices on different omics using SVM and Random Forest  run Classification/random_forest.py and Classification/svm.py.
+
 To obtain the confusion matrices on consunsus using mlp, BNN, and MLPTREE run Classification/plot_comparison-new.py(Classification/outliers.py must run first).
 
