@@ -1,4 +1,4 @@
-# bnn_on_multi_omics
+# Multi-omics classification on kidney samplesexploiting uncertainty-aware models
 Due to the huge amount of available omic data, classifying samples according to various omics is a complex process. One of the most common approaches consists of creating a classifier for each omic and subsequently making a consensus among the classifiers that assigns to each sample the most voted class among the outputs on the individual omics. 
  
 However, this approach does not consider the confidence in the prediction ignoring that a biological information coming from a certain omic may be more reliable than others.
